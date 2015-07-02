@@ -47,7 +47,7 @@ var elsQuery = opt.options.elsQuery ? opt.options.elsQuery : null;
 var manageDump = function(from, size, elsClientFrom, elsClientTo, query) {
 	var cpt = 0;
 	console.log('manageDump');
-	elsClientFrom.search(indexFrom, query, {from: from, size: 1}, function(err, response) {
+	elsClientFrom.search(indexFrom, query, {from: from, size: 1000}, function(err, response) {
 		if (err) {
 			console.log('error on search', err);
 		} else if (response && response.hits && response.hits.hits && response.hits.hits.length > 0) {
