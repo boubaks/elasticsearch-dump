@@ -1,0 +1,31 @@
+{
+  "name": "elasticsearch-dump",
+  "version": "1.0.0",
+  "description": "elasticsearch-export ====================",
+  "main": "index.js",
+  "dependencies": {
+    "elasticsearch": "^3.0.2",
+    "logger": "^0.0.1",
+    "mongodb": "^1.4.23",
+    "node-getopt": "^0.2.3",
+    "readline": "^0.0.5",
+    "requestify": "^0.1.16",
+    "winston": "^0.8.3"
+  },
+  "devDependencies": {
+    "mocha": "^2.0.1"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boubaks/elasticsearch-dump"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/boubaks/elasticsearch-dump/issues"
+  },
+  "homepage": "https://github.com/boubaks/elasticsearch-dump"
+}
