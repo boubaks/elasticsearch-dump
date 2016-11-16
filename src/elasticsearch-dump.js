@@ -1,8 +1,9 @@
+#!/usr/bin/env node
 var fs = require('fs');
 var getopt = require('node-getopt');
 var logger = require(__dirname + '/../lib/logger');
-var ELSCLIENT = require(__dirname + '/../lib/ElsClient').ElsClient;
-var ELSQUERY = require(__dirname + '/../lib/ElsQuery').ElsQuery;
+var elsClient = require('elasticsearch-client');
+var elsQuery = require('elasticsearch-query');
 
 var opt = getopt.create([
     ['i', 'indexFrom=ARG', 'index to export (default to all)'],
@@ -38,20 +39,15 @@ var typeTo = opt.options.typeTo ? opt.options.typeTo : typeFrom;
 
 
 var query = opt.options.query ? opt.options.query : {};
-var elsQuery = opt.options.elsQuery ? opt.options.elsQuery : null;
-
-/*
-** Initialization elasticsearch client & query
-*/
+var manualQueryELS = opt.options.elsQuery ? opt.options.elsQuery : null;
 
 var manageDump = function(from, size, elsClientFrom, elsClientTo, query) {
 	var cpt = 0;
-	console.log('manageDump');
+	// console.log('manageDump');
 	elsClientFrom.search(indexFrom, query, {from: from, size: 1000}, function(err, response) {
 		if (err) {
 			console.log('error on search', err);
-		} else if (response && response.hits && response.hits.hits && response.hits.hits.length > 0) {
-			console.log('else if response');
+		} else if (response && response.hits && response.hits.total > 0 && response.hits.hits.length > 0) {
 			var entitiesLength = response.hits.hits.length;
 			var entities = response.hits.hits;
 			for (iterator in entities) {
@@ -61,37 +57,36 @@ var manageDump = function(from, size, elsClientFrom, elsClientTo, query) {
 					} else {
 						++cpt;
 						if (cpt >= entitiesLength) {
-							console.log('on if entitiesLength');
 							manageDump(from + cpt, 1000, elsClientFrom, elsClientTo, query);
 						}
 					}
 				});
 			}
 		} else {
-			console.log('finished');
-			process.kill();
+			console.log('All documents are dumped');
+			process.kill(process.pid);
 		}
 	});
 }
 
-console.log('---->', hostFrom, portFrom, hostTo, portTo)
-new ELSCLIENT(hostFrom, portFrom, function(elsClientFrom, msg) {
+console.log('Duplicate from ' +  hostFrom + ':' + portFrom + ' to ' + hostTo + ':' + portTo);
+new elsClient(hostFrom, portFrom, function(elsClientFrom, msg) {
     if (!elsClientFrom) {
 		throw('Couldn\'t connect to ELS');
 	}
-	new ELSCLIENT(hostTo, portTo, function(elsClientTo, msg) {
+	new elsClient(hostTo, portTo, function(elsClientTo, msg) {
 	    if (!elsClientTo) {
 			throw('Couldn\'t connect to ELS');
 		}
-	    new ELSQUERY(function(tmpQuery) {
+	    new elsQuery(function(tmpQuery) {
 	    	tmpQuery.generate(typeFrom, query, null, {term: true}, function(err, queryELS) {
 			    if (err) {
 				console.log(err);
 			    } else {
-				    if (elsQuery) {
+				    if (manualQueryELS) {
 				    	try {
-				    		console.log('elsQuery', elsQuery);
-							query = JSON.parse(elsQuery);
+				    		console.log('manualQueryELS', manualQueryELS);
+							query = JSON.parse(manualQueryELS);
 						} catch (e) {
 							console.log(e);
 							query = {};
@@ -100,14 +95,14 @@ new ELSCLIENT(hostFrom, portFrom, function(elsClientFrom, msg) {
 						query = queryELS;
 					}
 					console.log('query', JSON.stringify(query));
-					elsClientFrom.count(indexFrom, query, function(err, result) {
-						console.log('count', result);
+					elsClientFrom.count(indexFrom, query, {}, function(err, result) {
+						console.log('elasticsearch-dump will dump ' + result.count + ' documents');
 					    size = result.count;
 					    if (size > 0) {
 					    	manageDump(0, size, elsClientFrom, elsClientTo, query);
 					    } else {
-							logger.info('elasticsearch-exported=> no file exported');
-							process.kill();
+							logger.info('elasticsearch-dump => no documents dumped');
+							process.kill(process.pid);
 					    }
 					});
 				}

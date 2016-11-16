@@ -1,31 +1,34 @@
 {
   "name": "elasticsearch-dump",
   "version": "1.0.0",
-  "description": "elasticsearch-export ====================",
-  "main": "index.js",
-  "dependencies": {
-    "elasticsearch": "^3.0.2",
-    "logger": "^0.0.1",
-    "mongodb": "^1.4.23",
-    "node-getopt": "^0.2.3",
-    "readline": "^0.0.5",
-    "requestify": "^0.1.16",
-    "winston": "^0.8.3"
-  },
-  "devDependencies": {
-    "mocha": "^2.0.1"
-  },
+  "description": "export and import (dump) from an elasticsearch to an another",
+  "main": "./src/elasticsearch-dump.js",
   "scripts": {
-    "test": "mocha"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/boubaks/elasticsearch-dump"
+    "url": "git+https://github.com/boubaks/elasticsearch-dump.git"
   },
-  "author": "",
+  "keywords": [
+    "elasticsearch",
+    "duplicate",
+    "dump"
+  ],
+  "author": "boubaks",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/boubaks/elasticsearch-dump/issues"
   },
-  "homepage": "https://github.com/boubaks/elasticsearch-dump"
+  "bin": {
+    "elasticsearch-dump": "./src/elasticsearch-dump.js"
+  },
+  "preferGlobal": "true",
+  "homepage": "https://github.com/boubaks/elasticsearch-dump#readme",
+  "dependencies": {
+    "elasticsearch-client": "^1.0.1",
+    "elasticsearch-query": "^1.0.3",
+    "node-getopt": "^0.2.3",
+    "winston": "^2.3.0"
+  }
 }
